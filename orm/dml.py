@@ -35,3 +35,71 @@ def check_if_tables_exist():
         
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
+        
+def create_session():
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    return session
+
+def create_database_if_not_exists():
+    if not database_exists(engine.url):
+        create_database(engine.url)
+        check_if_schema_exists()
+    else:
+        check_if_schema_exists()
+        
+def add_user_db(session, user):
+    session.add(user)
+    session.commit()
+    
+def add_restaurant_db(session, restaurant):
+    session.add(restaurant)
+    session.commit()
+    
+def add_client_db(session, client):
+    session.add(client)
+    session.commit()
+    
+def add_courier_db(session, courier):
+    session.add(courier)
+    session.commit()
+    
+def add_order_db(session, order):
+    session.add(order)
+    session.commit()
+    
+def get_user_role(session, nickname, password):
+    user = session.query(User).filter(User.nickname == nickname, User.password == password).first()
+    if user:
+        return user.role
+    else:
+        return None
+    
+def get_restaurant(session, id):
+    restaurant = session.query(Restaurant).filter(Restaurant.id == id).first()
+    if restaurant:
+        return restaurant
+    else:
+        return None
+    
+def get_client(session, id):
+    client = session.query(Client).filter(Client.id == id).first()
+    if client:
+        return client
+    else:
+        return None
+    
+def get_courier(session, id):
+    courier = session.query(Courier).filter(Courier.id == id).first()
+    if courier:
+        return courier
+    else:
+        return None
+    
+def get_order(session, id):
+    order = session.query(Order).filter(Order.id == id).first()
+    if order:
+        return order
+    else:
+        return None
+

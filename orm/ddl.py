@@ -58,6 +58,7 @@ class Order(Base):
     courier_id = mapped_column(Integer, ForeignKey(Courier.id))
     status = mapped_column(Integer, nullable=False, default=0)
     location = mapped_column(Geometry('POINT'), nullable=False)
+    description = mapped_column(String(64), nullable=False)
     
     client = relationship('Client', backref='orders')
     courier = relationship('Courier', backref='orders')
