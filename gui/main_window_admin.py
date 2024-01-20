@@ -4,18 +4,21 @@ import utils.backend as bknd
 
 class main_window_admin:
             
-    def hide_me(_,widget):
+    def hide_me(widget):
         widget.pack_forget()
         
-    def show_me(_,widget):
+    def show_me(widget):
         widget.pack()
         
     root = tk.Tk()
     root.title("My App")
     root.geometry("900x700")
     
-    lbl_list="List"
-
+    
+    selection_mode = {"client":1,"curier":2,"restaurant":3,"order":4}
+    selected_mode = 1
+    
+    
     main_frame = tk.Frame(root)
     main_frame.pack(padx=15,pady=15)
     
@@ -39,45 +42,58 @@ class main_window_admin:
     details_buttons_frame.grid(row=13,column=2,rowspan=6)
     
     # List Frame
-    lbl_list = tk.Label(list_frame, text=lbl_list)
+    lbl_list = tk.Label(list_frame, text="list")
     lbl_list.pack()
     
-    listbox = tk.Listbox(list_frame, width=50, height=22)
-    listbox.pack()
+    def onselect(evt):
+        if main_window_admin.selected_mode == main_window_admin.selection_mode["client"]:
+            wiget = evt.widget
+            index = int(wiget.curselection()[0])
+            value = wiget.get(index)
+            main_window_admin.lbl_client_name_value.config(text=value)
+    
+    listbox_main = tk.Listbox(list_frame, width=50, height=22)
+    listbox_main.bind('<<ListboxSelect>>', onselect)
+    listbox_main.pack()
+    
     
     
     # Buttons Frame
     def details_client():
-        main_window_admin.listbox.delete(0,tk.END)
+        main_window_admin.listbox_main.delete(0,tk.END)
         for client in bknd.get_all_clients():
-            main_window_admin.listbox.insert(tk.END,client.name)
+            main_window_admin.listbox_main.insert(tk.END,client.name)
+        main_window_admin.lbl_list.config(text="Clients")
         main_window_admin.hide_me(main_window_admin.detail_curier_frame)
         main_window_admin.hide_me(main_window_admin.detail_restaurant_frame)
         main_window_admin.hide_me(main_window_admin.detail_order_frame)
         main_window_admin.show_me(main_window_admin.detail_client_frame)
         
     def details_curier():
-        main_window_admin.listbox.delete(0,tk.END)
+        main_window_admin.listbox_main.delete(0,tk.END)
         for curier in bknd.get_all_couriers():
-            main_window_admin.listbox.insert(tk.END,curier.name)
+            main_window_admin.listbox_main.insert(tk.END,curier.name)
+        main_window_admin.lbl_list.config(text="Curiers")
         main_window_admin.hide_me(main_window_admin.detail_client_frame)
         main_window_admin.hide_me(main_window_admin.detail_restaurant_frame)
         main_window_admin.hide_me(main_window_admin.detail_order_frame)
         main_window_admin.show_me(main_window_admin.detail_curier_frame)
         
     def details_restaurant():
-        main_window_admin.listbox.delete(0,tk.END)
+        main_window_admin.listbox_main.delete(0,tk.END)
         for restaurant in bknd.get_all_restaurants():
-            main_window_admin.listbox.insert(tk.END,restaurant.name)
+            main_window_admin.listbox_main.insert(tk.END,restaurant.name)
+        main_window_admin.lbl_list.config(text="Restaurants")
         main_window_admin.hide_me(main_window_admin.detail_client_frame)
         main_window_admin.hide_me(main_window_admin.detail_curier_frame)
         main_window_admin.hide_me(main_window_admin.detail_order_frame)
         main_window_admin.show_me(main_window_admin.detail_restaurant_frame)
         
     def details_order():
-        main_window_admin.listbox.delete(0,tk.END)
+        main_window_admin.listbox_main.delete(0,tk.END)
         for order in bknd.get_all_orders():
-            main_window_admin.listbox.insert(tk.END,order.id)
+            main_window_admin.listbox_main.insert(tk.END,order.id)
+        main_window_admin.lbl_list.config(text="Orders")
         main_window_admin.hide_me(main_window_admin.detail_client_frame)
         main_window_admin.hide_me(main_window_admin.detail_curier_frame)
         main_window_admin.hide_me(main_window_admin.detail_restaurant_frame)
