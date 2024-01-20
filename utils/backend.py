@@ -21,8 +21,8 @@ def add_courier(name, phone, location, status):
     with create_session() as session:
         dml.add_courier_db(session, courier)
         
-def add_order(restaurant_id, client_id, courier_id, status, location, description):
-    order = Order(restaurant_id=restaurant_id, client_id=client_id, courier_id=courier_id, status=status, location=location, description=description)
+def add_order(restaurant_id, client_id, courier_id, status, description):
+    order = Order(restaurant_id=restaurant_id, client_id=client_id, courier_id=courier_id, status=status, description=description)
     with create_session() as session:
         dml.add_order_db(session, order)
 
@@ -102,7 +102,7 @@ def edit_courier(id, name, phone, location, status):
         else:
             return False
         
-def edit_order(id, restaurant_id, client_id, courier_id, status, location, description):
+def edit_order(id, restaurant_id, client_id, courier_id, status, description):
     with create_session() as session:
         order = session.query(Order).filter(Order.id == id).first()
         if order:
@@ -110,7 +110,6 @@ def edit_order(id, restaurant_id, client_id, courier_id, status, location, descr
             order.client_id = client_id
             order.courier_id = courier_id
             order.status = status
-            order.location = location
             order.description = description
             session.commit()
             return True
@@ -144,3 +143,4 @@ def delete_order(id):
         if order:
             session.delete(order)
             session.commit()
+

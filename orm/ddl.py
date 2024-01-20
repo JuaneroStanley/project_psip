@@ -1,5 +1,5 @@
 from orm.base import Base
-from sqlalchemy import Integer, String, ForeignKey
+from sqlalchemy import Integer, String, ForeignKey, Float
 from sqlalchemy.orm import relationship, mapped_column
 from geoalchemy2 import Geometry
 
@@ -21,7 +21,7 @@ class Restaurant(Base):
     phone = mapped_column(String(64), nullable=False)
     description = mapped_column(String(64), nullable=False)
     menu = mapped_column(String(64), nullable=False)
-    rating = mapped_column(Integer, nullable=False, default=0)
+    rating = mapped_column(Float, nullable=False, default=0)
     location = mapped_column(Geometry('POINT'), nullable=False)  
     
     def __repr__(self):
@@ -57,7 +57,6 @@ class Order(Base):
     client_id = mapped_column(Integer, ForeignKey(Client.id))
     courier_id = mapped_column(Integer, ForeignKey(Courier.id))
     status = mapped_column(Integer, nullable=False, default=0)
-    location = mapped_column(Geometry('POINT'), nullable=False)
     description = mapped_column(String(64), nullable=False)
     
     client = relationship('Client', backref='orders')
