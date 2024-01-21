@@ -4,3 +4,4 @@ from gui.main_window_admin import main_window_admin
 
 main_window_admin = main_window_admin()
 main_window_admin.open_window()
+

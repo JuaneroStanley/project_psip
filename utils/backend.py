@@ -1,5 +1,6 @@
 import orm.dml as dml
 from orm.dml import User, Restaurant, Client, Courier, Order,create_session
+import geopy
 
 def add_user(nickname, email, password, role):
     user = User(nickname=nickname, email=email, password=password, role=role)
@@ -143,4 +144,41 @@ def delete_order(id):
         if order:
             session.delete(order)
             session.commit()
+
+def get_order_status(status_int):
+    if status_int == 0:
+        return 'Delivered'
+    elif status_int == 1:
+        return 'Picked up'
+    elif status_int == 2:
+        return 'Preparing'
+    
+def get_courier_status(status_int):
+    if status_int == 0:
+        return 'Available'
+    elif status_int == 1:
+        return 'Delivering'
+    elif status_int == 2:
+        return 'Unavailable'
+    
+    
+def get_restaurant(id):
+    with create_session() as session:
+        restaurant = session.query(Restaurant).filter(Restaurant.id == id).first()
+        return restaurant
+    
+def get_client(id):
+    with create_session() as session:
+        client = session.query(Client).filter(Client.id == id).first()
+        return client
+    
+def get_courier(id):
+    with create_session() as session:
+        courier = session.query(Courier).filter(Courier.id == id).first()
+        return courier
+    
+def get_order(id):
+    with create_session() as session:
+        order = session.query(Order).filter(Order.id == id).first()
+        return order
 

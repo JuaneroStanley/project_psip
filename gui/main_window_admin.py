@@ -1,6 +1,8 @@
 import tkinter as tk
 import tkintermapview
 import utils.backend as bknd 
+import orm.dml as dml
+import utils.gis as gis
 
 class main_window_admin:
             
@@ -45,24 +47,130 @@ class main_window_admin:
     lbl_list = tk.Label(list_frame, text="list")
     lbl_list.pack()
     
-    def onselect(evt):
+    def populate_listbox(listbox, list):
+        listbox.delete(0,tk.END)
+        if main_window_admin.selected_mode == main_window_admin.selection_mode["order"]:
+            for item in list:
+                listbox.insert(tk.END,f'{item.id} {bknd.get_restaurant(item.restaurant_id).name} {bknd.get_order_status(item.status)}')
+        else:
+            for item in list:
+                listbox.insert(tk.END,f'{item.name}')
+                    
+    list_listbox = []
+    
+    def populate_list():
         if main_window_admin.selected_mode == main_window_admin.selection_mode["client"]:
-            wiget = evt.widget
-            index = int(wiget.curselection()[0])
-            value = wiget.get(index)
-            main_window_admin.lbl_client_name_value.config(text=value)
+            return bknd.get_all_clients()
+        elif main_window_admin.selected_mode == main_window_admin.selection_mode["curier"]:
+            return bknd.get_all_couriers()
+        elif main_window_admin.selected_mode == main_window_admin.selection_mode["restaurant"]:
+            return bknd.get_all_restaurants()
+        elif main_window_admin.selected_mode == main_window_admin.selection_mode["order"]:
+            return bknd.get_all_orders()
+    
+    def refresh_listbox():
+        main_window_admin.list_listbox = main_window_admin.populate_list()
+        main_window_admin.populate_listbox(main_window_admin.listbox_main, main_window_admin.list_listbox)
+    
+    
+    def onselect(evt):
+        wiget = evt.widget
+        index = int(wiget.curselection()[0])
+        if main_window_admin.selected_mode == main_window_admin.selection_mode["client"]:
+            name_value = main_window_admin.list_listbox[index].name
+            phone_value = main_window_admin.list_listbox[index].phone
+            email_value = main_window_admin.list_listbox[index].email
+            location = gis.get_lat_lon(main_window_admin.list_listbox[index].location)
+            main_window_admin.map_view.set_position(location[0],location[1])
+            address_value=gis.parse_address(gis.get_address_from_location(location[0],location[1]))
+            main_window_admin.lbl_client_name_value.config(text=name_value)
+            main_window_admin.lbl_client_phone_value.config(text=phone_value)
+            main_window_admin.lbl_client_email_value.config(text=email_value)
+            main_window_admin.lbl_client_address_value.config(text=address_value)
+            orders = bknd.get_all_orders_by_client(main_window_admin.list_listbox[index].id)
+            main_window_admin.listbox_client_orders.delete(0,tk.END)
+            for order in orders:
+                main_window_admin.listbox_client_orders.insert(tk.END,str(order.id) + " " + bknd.get_order_status(order.status))
+        elif main_window_admin.selected_mode == main_window_admin.selection_mode["curier"]:
+            name_value = main_window_admin.list_listbox[index].name
+            phone_value = main_window_admin.list_listbox[index].phone
+            location = gis.get_lat_lon(main_window_admin.list_listbox[index].location)
+            main_window_admin.map_view.set_position(location[0],location[1])
+            address_value=gis.parse_address(gis.get_address_from_location(location[0],location[1]))
+            status_value = bknd.get_courier_status(main_window_admin.list_listbox[index].status)
+            main_window_admin.lbl_curier_name_value.config(text=name_value)
+            main_window_admin.lbl_curier_phone_value.config(text=phone_value)
+            main_window_admin.lbl_curier_location_value.config(text=address_value)
+            main_window_admin.lbl_curier_status_value.config(text=status_value)
+            orders = bknd.get_all_orders_by_courier(main_window_admin.list_listbox[index].id)
+            main_window_admin.listbox_curier_orders.delete(0,tk.END)
+            for order in orders:
+                main_window_admin.listbox_curier_orders.insert(tk.END,str(order.id) + " " + bknd.get_order_status(order.status))
+        elif main_window_admin.selected_mode == main_window_admin.selection_mode["restaurant"]:
+            name_value = main_window_admin.list_listbox[index].name
+            phone_value = main_window_admin.list_listbox[index].phone
+            description_value = main_window_admin.list_listbox[index].description
+            rating_value = main_window_admin.list_listbox[index].rating
+            location = gis.get_lat_lon(main_window_admin.list_listbox[index].location)
+            main_window_admin.map_view.set_position(location[0],location[1])
+            address_value=gis.parse_address(gis.get_address_from_location(location[0],location[1]))
+            main_window_admin.lbl_restaurant_name_value.config(text=name_value)            
+            main_window_admin.lbl_restaurant_phone_value.config(text=phone_value)
+            main_window_admin.lbl_restaurant_description_value.config(text=description_value)
+            main_window_admin.lbl_restaurant_rating_value.config(text=rating_value)
+            main_window_admin.lbl_restaurant_address_value.config(text=address_value)
+            orders = bknd.get_all_orders_by_restaurant(main_window_admin.list_listbox[index].id)
+            main_window_admin.listbox_restaurant_orders.delete(0,tk.END)
+            for order in orders:
+                main_window_admin.listbox_restaurant_orders.insert(tk.END,str(order.id) + " " + bknd.get_order_status(order.status))
+        elif main_window_admin.selected_mode == main_window_admin.selection_mode["order"]:
+            restaurant_value = bknd.get_restaurant(main_window_admin.list_listbox[index].restaurant_id).name
+            client_value = bknd.get_client(main_window_admin.list_listbox[index].client_id).name
+            curier_value = bknd.get_courier(main_window_admin.list_listbox[index].courier_id).name
+            status_value = bknd.get_order_status(main_window_admin.list_listbox[index].status)
+            details_value = main_window_admin.list_listbox[index].description
+            main_window_admin.lbl_order_restaurant_value.config(text=restaurant_value)
+            main_window_admin.lbl_order_client_value.config(text=client_value)
+            main_window_admin.lbl_order_curier_value.config(text=curier_value)
+            main_window_admin.lbl_order_status_value.config(text=status_value)
+            main_window_admin.lbl_order_details_value.config(text=details_value)
+            
+            
     
     listbox_main = tk.Listbox(list_frame, width=50, height=22)
     listbox_main.bind('<<ListboxSelect>>', onselect)
     listbox_main.pack()
     
+    def set_up_map(map_view):
+        map_view.delete_all_marker()
+        if main_window_admin.selected_mode == main_window_admin.selection_mode["client"]:
+            for client in bknd.get_all_clients():
+                lat,lon = gis.get_lat_lon(client.location)
+                map_view.set_marker(lat,lon,text = client.name)
+                map_view.set_position(lat,lon)
+                map_view.set_zoom(5)
+        elif main_window_admin.selected_mode == main_window_admin.selection_mode["curier"]:
+            for curier in bknd.get_all_couriers():
+                lat,lon = gis.get_lat_lon(curier.location)
+                map_view.set_marker(lat,lon,text = curier.name)
+                map_view.set_position(lat,lon)
+                map_view.set_zoom(5)
+        elif main_window_admin.selected_mode == main_window_admin.selection_mode["restaurant"]:
+            for restaurant in bknd.get_all_restaurants():
+                lat,lon = gis.get_lat_lon(restaurant.location)
+                map_view.set_marker(lat,lon,text = restaurant.name)
+                map_view.set_position(lat,lon)
+                map_view.set_zoom(5)
+                
+    
+    
     
     
     # Buttons Frame
     def details_client():
-        main_window_admin.listbox_main.delete(0,tk.END)
-        for client in bknd.get_all_clients():
-            main_window_admin.listbox_main.insert(tk.END,client.name)
+        main_window_admin.selected_mode = 1
+        main_window_admin.refresh_listbox()
+        main_window_admin.set_up_map(main_window_admin.map_view)
         main_window_admin.lbl_list.config(text="Clients")
         main_window_admin.hide_me(main_window_admin.detail_curier_frame)
         main_window_admin.hide_me(main_window_admin.detail_restaurant_frame)
@@ -70,9 +178,9 @@ class main_window_admin:
         main_window_admin.show_me(main_window_admin.detail_client_frame)
         
     def details_curier():
-        main_window_admin.listbox_main.delete(0,tk.END)
-        for curier in bknd.get_all_couriers():
-            main_window_admin.listbox_main.insert(tk.END,curier.name)
+        main_window_admin.selected_mode = 2
+        main_window_admin.refresh_listbox()
+        main_window_admin.set_up_map(main_window_admin.map_view)
         main_window_admin.lbl_list.config(text="Curiers")
         main_window_admin.hide_me(main_window_admin.detail_client_frame)
         main_window_admin.hide_me(main_window_admin.detail_restaurant_frame)
@@ -80,9 +188,9 @@ class main_window_admin:
         main_window_admin.show_me(main_window_admin.detail_curier_frame)
         
     def details_restaurant():
-        main_window_admin.listbox_main.delete(0,tk.END)
-        for restaurant in bknd.get_all_restaurants():
-            main_window_admin.listbox_main.insert(tk.END,restaurant.name)
+        main_window_admin.selected_mode = 3
+        main_window_admin.refresh_listbox()
+        main_window_admin.set_up_map(main_window_admin.map_view)
         main_window_admin.lbl_list.config(text="Restaurants")
         main_window_admin.hide_me(main_window_admin.detail_client_frame)
         main_window_admin.hide_me(main_window_admin.detail_curier_frame)
@@ -90,9 +198,9 @@ class main_window_admin:
         main_window_admin.show_me(main_window_admin.detail_restaurant_frame)
         
     def details_order():
-        main_window_admin.listbox_main.delete(0,tk.END)
-        for order in bknd.get_all_orders():
-            main_window_admin.listbox_main.insert(tk.END,order.id)
+        main_window_admin.selected_mode = 4
+        main_window_admin.refresh_listbox()
+        main_window_admin.set_up_map(main_window_admin.map_view)
         main_window_admin.lbl_list.config(text="Orders")
         main_window_admin.hide_me(main_window_admin.detail_client_frame)
         main_window_admin.hide_me(main_window_admin.detail_curier_frame)
@@ -165,23 +273,17 @@ class main_window_admin:
     lbl_curier_phone_value = tk.Label(detail_curier_frame, text="Phone")
     lbl_curier_phone_value.grid(row=1,column=1)
     
-    lbl_curier_email = tk.Label(detail_curier_frame, text="Email")
-    lbl_curier_email.grid(row=2,column=0)
-    
-    lbl_curier_email_value = tk.Label(detail_curier_frame, text="Email")
-    lbl_curier_email_value.grid(row=2,column=1)
-    
     lbl_curier_location = tk.Label(detail_curier_frame, text="Location")
-    lbl_curier_location.grid(row=3,column=0)
+    lbl_curier_location.grid(row=2,column=0)
     
     lbl_curier_location_value = tk.Label(detail_curier_frame, text="Location")
-    lbl_curier_location_value.grid(row=3,column=1)
+    lbl_curier_location_value.grid(row=2,column=1)
     
     lbl_curier_status = tk.Label(detail_curier_frame, text="Status")
-    lbl_curier_status.grid(row=4,column=0)
+    lbl_curier_status.grid(row=3,column=0)
     
     lbl_curier_status_value = tk.Label(detail_curier_frame, text="Status")
-    lbl_curier_status_value.grid(row=4,column=1)
+    lbl_curier_status_value.grid(row=3,column=1)
     
     listbox_curier_orders = tk.Listbox(detail_curier_frame, width=50)
     listbox_curier_orders.grid(row=0,column=2,rowspan=5)

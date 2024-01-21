@@ -75,19 +75,3 @@ def get_user_role(session, nickname, password):
     else:
         return None
     
-def get_restaurant(session, id):
-    restaurant = session.query(Restaurant).filter(Restaurant.id == id).first()
-    return restaurant
-    
-def get_client(session, id):
-    client = session.query(Client).filter(Client.id == id).first()
-    return client
-    
-def get_courier(session, id):
-    courier = session.query(Courier).filter(Courier.id == id).first()
-    return courier
-    
-def get_order(session, id):
-    order = session.query(Order).filter(Order.id == id).first()
-    return order
-
