@@ -16,7 +16,30 @@ db_params = sqlalchemy.engine.URL.create(
     host=os.getenv("POSTGRES_HOST"),
     port=os.getenv("POSTGRES_PORT"))
 
-engine = sqlalchemy.create_engine(db_params)
+engine = None
+
+drivername, username, password, database, host, port = None, None, None, None, None, None
+
+
+def get_db_params():
+    drivername = 'postgresql'
+    username = os.getenv("POSTGRES_USER")
+    password = os.getenv("POSTGRES_PASSWORD")
+    database = os.getenv("POSTGRES_DB")
+    host = os.getenv("POSTGRES_HOST")
+    port = os.getenv("POSTGRES_PORT")
+    return drivername, username, password, database, host, port
+
+def create_engine():
+    db_params = sqlalchemy.engine.URL.create(
+        drivername=drivername,
+        username=username,
+        password=password,
+        database=database,
+        host=host,
+        port=port)
+    print(drivername, username, password, database, host, port)
+    return sqlalchemy.create_engine(db_params)
 
 def check_if_schema_exists():
     with engine.connect() as connection:
@@ -24,18 +47,38 @@ def check_if_schema_exists():
         connection.commit()
     check_if_tables_exist()
     
+def check_connection():
+    try:
+        connection = engine.connect()
+        return True
+    except Exception as e:
+        print(e)
+        return False
     
 def check_if_tables_exist():
-    inspector = sqlalchemy.inspect(engine)
-    if User.__tablename__ not in inspector.get_table_names() or \
-        Restaurant.__tablename__ not in inspector.get_table_names() or \
-        Client.__tablename__ not in inspector.get_table_names() or \
-        Courier.__tablename__ not in inspector.get_table_names() or \
-        Order.__tablename__ not in inspector.get_table_names():
-        
+    metadana = sqlalchemy.MetaData(schema="staskrz")
+    metadana.reflect(bind=engine)
+    keys =  metadana.tables.keys()
+    keys = list(str(key) for key in keys)
+    if f'staskrz.{User.__tablename__}' not in keys or \
+        f'staskrz.{Restaurant.__tablename__}' not in keys or \
+        f'staskrz.{Client.__tablename__}' not in keys or \
+        f'staskrz.{Courier.__tablename__}' not in keys or \
+        f'staskrz.{Order.__tablename__}' not in keys:
         Base.metadata.drop_all(engine)
         Base.metadata.create_all(engine)
-        
+    if not check_if_admin_exists():
+        add_user_db(create_session(), User(nickname="admin", email="", password="admin"))
+     
+     
+def check_if_admin_exists():
+    with create_session() as session:
+        user = session.query(User).filter(User.nickname == "admin",User.password=="admin").first()
+        if user:
+            return True
+        else:
+            return False     
+   
 def create_session():
     Session = sessionmaker(bind=engine)
     session = Session()

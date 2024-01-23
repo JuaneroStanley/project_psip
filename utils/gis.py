@@ -52,7 +52,7 @@ def parse_address(address):
 
 def get_point_from_address(address):
     lat, lon = get_location_from_address(address)
-    return f"POINT({lat} {lon})"
+    return f"POINT({lon} {lat})"
 
 def get_lat_lon(wkb_point):
     point = wkb.loads(str(wkb_point), hex=True)
