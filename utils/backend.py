@@ -63,20 +63,6 @@ def get_all_orders_by_courier(courier_id):
         return orders
 
 def edit_restaurant(id:int, name:str, phone:str, description:str, rating:str, location:str):
-    """
-    Edit the details of a restaurant.
-
-    Args:
-        id (int): The ID of the restaurant to be edited.
-        name (str): The new name of the restaurant.
-        phone (str): The new phone number of the restaurant.
-        description (str): The new description of the restaurant.
-        rating (float): The new rating of the restaurant.
-        location (str): The new location in WKT format of the restaurant.
-
-    Returns:
-        bool: True if the restaurant was successfully edited, False otherwise.
-    """
     with create_session() as session:
         restaurant = session.query(Restaurant).filter(Restaurant.id == id).first()
         if restaurant:

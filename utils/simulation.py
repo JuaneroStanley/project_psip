@@ -10,6 +10,7 @@ def simulate():
     Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
     fake = Faker()
+    bknd.add_user('admin', 'admin@gmail.com', 'admin')
     for i in range(10):
         bknd.add_restaurant(name=fake.name(), phone=fake.phone_number(), description=fake.email(),rating=2.3,location= f'POINT({fake.longitude()} {fake.latitude()})')
         bknd.add_client(fake.name(), fake.phone_number(), fake.email(), f'POINT({fake.longitude()} {fake.latitude()})')
