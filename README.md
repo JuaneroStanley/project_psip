@@ -1,7 +1,5 @@
 # project_psip
 
-# Project Name
-
 ## Description
 Project for PSIP 23/24 for Stanisław Skrzyński.
 Application for food delivery service. Basic local database controls with crud for clients, couriers orders and restaurants and locations.
