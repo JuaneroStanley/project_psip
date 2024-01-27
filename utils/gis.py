@@ -1,23 +1,32 @@
 from geopy.geocoders import Nominatim
 from shapely import wkb
 
-def get_location_from_address(address):
+def get_location_from_address(address: str) -> tuple:
+    """
+    Retrieves the latitude and longitude coordinates for a given address.
+    """
     geolocator = Nominatim(user_agent="staskrz")
-    location = geolocator.geocode(address,exactly_one=True)
+    location = geolocator.geocode(address, exactly_one=True)
     try:
         return location.latitude, location.longitude
     except AttributeError:
         print(f"Nie znaleziono lokalizacji dla adresu: {address}")
         return 52.2296756, 21.0122287
         
-def get_address_from_location(lat, lon):
+def get_address_from_location(lat:float, lon: float)->str:
+    """
+    Retrieves the address for a given latitude and longitude coordinates.
+    """
     geolocator = Nominatim(user_agent="staskrz")
     location = geolocator.reverse(f"{lat}, {lon}", exactly_one=True,addressdetails=True,language=["pl","en"])
     if location is None:
         return "Nie znaleziono adresu"
     return location.address
 
-def parse_address(address):
+def parse_address(address: str)->tuple:
+    """
+    Parses the address string into street, street_number, postal_code and city.
+    """
     print(address)
     if address == "Nie znaleziono adresu":
         return "Nie znaleziono adresu"
@@ -50,10 +59,16 @@ def parse_address(address):
     else: return "Nie znaleziono adresu"
     return street.strip(), street_number.strip(), postal_code.strip(), city.strip()
 
-def get_point_from_address(address):
+def get_point_from_address(address: str):
+    """
+    Retrieves the point in WKT format from address.
+    """
     lat, lon = get_location_from_address(address)
     return f"POINT({lon} {lat})"
 
-def get_lat_lon(wkb_point):
+def get_lat_lon(wkb_point: bytes)->tuple:
+    """
+    Retrieves the latitude and longitude coordinates from WKB point.
+    """
     point = wkb.loads(str(wkb_point), hex=True)
     return (point.y, point.x)

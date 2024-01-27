@@ -7,7 +7,9 @@ import utils.simulation as simulation
 import utils.backend as bknd
 
 class login_window():
-     
+    """
+    Window for logging in.
+    """
     root = tk.Tk()
     root.title("Login")
     root.geometry("600x200")
@@ -61,7 +63,10 @@ class login_window():
     entry_db_port.grid(row=5, column=3)
 
     
-    def hint():
+    def hint()->None:
+        """
+        Fills the username and password entry fields with default values.
+        """
         login_window.entry_username.delete(0, tk.END)
         login_window.entry_password.delete(0, tk.END)
         login_window.entry_username.insert(0, "admin")
@@ -70,7 +75,10 @@ class login_window():
     btn_hint = tk.Button(root, text="Podpowiedź dane logowania", command=hint)
     btn_hint.grid(row=3, column=0, columnspan=2)
     
-    def check_if_env_exists():
+    def check_if_env_exists() -> None:
+        """
+        Checks if the .env file exists and populates the login window fields with the database parameters if it does.
+        """
         if os.path.isfile('./.env'):
             login_window.entry_db_name.delete(0, tk.END)
             login_window.entry_db_user.delete(0, tk.END)
@@ -78,6 +86,7 @@ class login_window():
             login_window.entry_db_host.delete(0, tk.END)
             login_window.entry_db_port.delete(0, tk.END)
             dml.drivername, dml.username, dml.password, dml.database, dml.host, dml.port = dml.get_db_params()
+            print(dml.drivername, dml.username, dml.password, dml.database, dml.host, dml.port)
             login_window.entry_db_name.insert(0, dml.database)
             login_window.entry_db_user.insert(0, dml.username)
             login_window.entry_db_password.insert(0, dml.password)
@@ -95,7 +104,19 @@ class login_window():
     lbl_connection_error = tk.Label(root, text="", fg="red")
     lbl_connection_error.grid(row=6, column=2, columnspan=2)
     
-    def login_try():
+    def login_try()->None:
+        """
+        Attempts to log in with the provided credentials and performs necessary actions based on the result.
+
+        This function retrieves the attributes from window's input fields.
+        It then sets up the database connection using the provided information and checks if the connection is successful.
+        If the connection is successful, it creates the database if it doesn't exist and proceeds with the login process.
+        If the "simulate" checkbox is checked, it initiates a utils.simulation.simulate().
+        It then checks the provided username and password against the users database.
+        If the credentials are valid, opens the main window.
+        Otherwise, it displays an error message indicating incorrect login credentials.
+
+        """
         dml.username = login_window.entry_db_user.get()
         dml.password = login_window.entry_db_password.get()
         dml.database = login_window.entry_db_name.get()
@@ -110,18 +131,15 @@ class login_window():
             username = login_window.entry_username.get()
             password = login_window.entry_password.get()
             if bknd.check_user(username, password):
-                login_window.root.quit()
-                main_window = main_window_admin.main_window_admin()
-                main_window.open_window()
+                bknd.is_logged_in = True
+                # main_window = main_window_admin.main_window_admin()
+                # main_window.open_window()
                 login_window.close_window()
             else:
                 login_window.lbl_connection_error.config(text="Błędne dane logowania")
         else:
             login_window.lbl_connection_error.config(text="Błąd połączenia z bazą danych")
-    
-    def login():
-        pass
-    
+ 
     btn_login = tk.Button(root, text="Zaloguj", command=login_try)
     btn_login.grid(row=7, column=2)
     
@@ -131,10 +149,18 @@ class login_window():
     btn_exit = tk.Button(root, text="Wyjdź", command=close_window)
     btn_exit.grid(row=7, column=3)
     
-    def create_new_user():
-        
-        new_user_window = nuw.new_user_window(login_window.entry_db_name.get(), login_window.entry_db_user.get(), login_window.entry_db_password.get(), login_window.entry_db_host.get(), login_window.entry_db_port.get())
-        new_user_window.open_window()       
+    def create_new_user() -> None:
+        """
+        Creates and opens a new user window.
+
+        This function retrieves the database name, user, password, host, and port from the login window's entry fields,
+        and passes them to the `new_user_window` function to create a new user window. The new user window is then opened.
+        """
+        new_user_window = nuw.new_user_window(login_window.entry_db_name.get(),
+                                            login_window.entry_db_user.get(),
+                                            login_window.entry_db_password.get(),
+                                            login_window.entry_db_host.get(),
+                                            login_window.entry_db_port.get())
     
     
     btn_create_new_user = tk.Button(root, text="Utwórz nowego użytkownika", command=create_new_user)

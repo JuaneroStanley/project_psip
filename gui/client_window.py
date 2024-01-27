@@ -4,6 +4,9 @@ import utils.backend as bknd
 
 
 class client_window:
+    """
+    Window for adding and editing clients.
+    """    
     
     def __init__(self, client_id):
         self.root = tk.Toplevel()
@@ -60,27 +63,40 @@ class client_window:
         
         
         
-    def save(self):
-        name = self.entry_name.get()
-        phone = self.entry_phone.get()
-        email = self.entry_email.get()
-        postal = self.entry_postal.get()
-        city = self.entry_city.get()
-        street = self.entry_street.get()
-        house = self.entry_house.get()
-        
-        address = f'{postal} {city}, {street} {house}'
-        localisation = gis.get_point_from_address(address)
-        
-        if self.client_id == 0:
-            bknd.add_client(name, phone, email, localisation)
-            self.root.destroy()
-        else:
-            bknd.edit_client(self.client_id, name, phone, email, localisation)
-            self.root.destroy()
+    def save(self)-> None:
+            """
+            Saves the client information entered in the GUI.
+            If the client ID is 0, adds a new client with the provided information and closes the GUI.
+            Otherwise, edits the existing client with the provided information and closes the GUI.
+            """
+            name = self.entry_name.get()
+            phone = self.entry_phone.get()
+            email = self.entry_email.get()
+            postal = self.entry_postal.get()
+            city = self.entry_city.get()
+            street = self.entry_street.get()
+            house = self.entry_house.get()
+            
+            address = f'{postal} {city}, {street} {house}'
+            localisation = gis.get_point_from_address(address)
+            
+            if self.client_id == 0:
+                bknd.add_client(name, phone, email, localisation)
+                self.root.destroy()
+            else:
+                bknd.edit_client(self.client_id, name, phone, email, localisation)
+                self.root.destroy()
             
         
-    def populate(self, client_id):
+    def populate(self, client_id: int)-> None:
+        """
+        Populates the client window with the information of the specified client.
+
+        Parameters:
+        - client_id (int): The ID of the client.
+
+        """
+        
         if client_id == 0:
             return
         client = bknd.get_client(client_id)
@@ -93,7 +109,7 @@ class client_window:
         self.entry_city.insert(0, address[3])
         self.entry_street.insert(0, address[0])
         self.entry_house.insert(0, address[1])
-        
+    
     def open_window(self):
         
         self.root.mainloop()

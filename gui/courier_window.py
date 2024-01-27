@@ -4,6 +4,9 @@ import utils.backend as bknd
 
 
 class courier_window:
+    """
+    Window for adding and editing couriers.
+    """
     
     def __init__(self, client_id):
         self.root = tk.Toplevel()
@@ -60,7 +63,13 @@ class courier_window:
         
         
         
-    def save(self):
+    def save(self)-> None:
+        """
+        Saves the courier information entered in the GUI.
+        If the client_id is 0, adds a new courier using bknd.add_courier() function.
+        Otherwise, edits the existing courier using bknd.edit_courier() function.
+        Destroys the window afterwards.
+        """
         name = self.entry_name.get()
         phone = self.entry_phone.get()
         postal = self.entry_postal.get()
@@ -79,25 +88,29 @@ class courier_window:
         localisation = gis.get_point_from_address(address)
         
         if self.client_id == 0:
-            bknd.add_courier(name, phone, localisation,status)
+            bknd.add_courier(name, phone, localisation, status)
             self.root.destroy()
         else:
             bknd.edit_courier(self.client_id, name, phone, localisation, status)
             self.root.destroy()
             
         
-    def populate(self, courier_id):
-        if courier_id == 0:
-            return
-        client = bknd.get_client(courier_id)
-        self.entry_name.insert(0, client.name)
-        self.entry_phone.insert(0, client.phone)
-        lat, lon = gis.get_lat_lon(client.location)
-        address = gis.parse_address(gis.get_address_from_location(lat, lon))
-        self.entry_postal.insert(0, address[2])
-        self.entry_city.insert(0, address[3])
-        self.entry_street.insert(0, address[0])
-        self.entry_house.insert(0, address[1])
+    def populate(self, courier_id:int)-> None:
+            """
+            Populates the courier window with client information based on the given courier ID.
+            """
+            
+            if courier_id == 0:
+                return
+            client = bknd.get_client(courier_id)
+            self.entry_name.insert(0, client.name)
+            self.entry_phone.insert(0, client.phone)
+            lat, lon = gis.get_lat_lon(client.location)
+            address = gis.parse_address(gis.get_address_from_location(lat, lon))
+            self.entry_postal.insert(0, address[2])
+            self.entry_city.insert(0, address[3])
+            self.entry_street.insert(0, address[0])
+            self.entry_house.insert(0, address[1])
         
     def open_window(self):
         

@@ -4,6 +4,9 @@ import utils.backend as bknd
 
 
 class restaurant_window:
+    """
+    Window for adding and editing restaurants.
+    """
     
     def __init__(self, client_id):
         self.root = tk.Toplevel()
@@ -66,36 +69,42 @@ class restaurant_window:
         
         
         
-    def save(self):
-        name = self.entry_name.get()
-        phone = self.entry_phone.get()
-        rating = self.entry_rating.get()
-        postal = self.entry_postal.get()
-        city = self.entry_city.get()
-        street = self.entry_street.get()
-        house = self.entry_house.get()
-        description = self.entry_description.get()
-        
-        address = f'{postal} {city}, {street} {house}'
-        localisation = gis.get_point_from_address(address)
-        
-        if self.restaurant_id == 0:
-            bknd.add_restaurant(name, phone,description, rating, localisation)
-            self.root.destroy()
-        else:
-            bknd.edit_restaurant(self.restaurant_id, name, phone, description,rating, localisation)
-            self.root.destroy()
+    def save(self)->None:
+            """
+            Saves the restaurant information entered in the GUI.
+
+            Retrieves the values entered in the GUI.
+            Constructs the address string using address components.
+            Uses the address to obtain the geographical point (localisation) using the gis.get_point_from_address() function.
+            If the restaurant_id is 0, adds a new restaurant using bknd.add_restaurant() function.
+            If the restaurant_id is not 0, edits the existing restaurant using bknd.edit_restaurant() function.
+            """
+            name = self.entry_name.get()
+            phone = self.entry_phone.get()
+            rating = self.entry_rating.get()
+            postal = self.entry_postal.get()
+            city = self.entry_city.get()
+            street = self.entry_street.get()
+            house = self.entry_house.get()
+            description = self.entry_description.get()
+            
+            address = f'{postal} {city}, {street} {house}'
+            localisation = gis.get_point_from_address(address)
+            
+            if self.restaurant_id == 0:
+                bknd.add_restaurant(name, phone,description, rating, localisation)
+                self.root.destroy()
+            else:
+                bknd.edit_restaurant(self.restaurant_id, name, phone, description,rating, localisation)
+                self.root.destroy()
             
         
-    def populate(self, restaurant_id:int):
+    def populate(self, restaurant_id:int)->None:
         """
         Populates the restaurant window with data from the specified restaurant if editing.
 
         Args:
-            restaurant_id (int): The ID of the restaurant to populate the window with.
-
-        Returns:
-            None
+            restaurant_id (int): The ID of the restaurant to populate the window with. If 0, no data is populated.
         """
         if restaurant_id == 0:
             return

@@ -4,8 +4,11 @@ import utils.backend as bknd
 
 
 class order_window:
+    """
+    Window for adding and editing orders.
+    """
     
-    def __init__(self, order_id):
+    def __init__(self, order_id: int)->None:
         self.root = tk.Toplevel()
         self.root.title("Order")
         self.root.geometry("300x200")
@@ -54,32 +57,45 @@ class order_window:
         
         
         
-    def save(self):
-        client = bknd.client_by_name(self.cmbbox_client.get())
-        restaurant = bknd.restaurant_by_name(self.cmbbox_restaurant.get())
-        courier = bknd.courier_by_name(self.cmbbox_courier.get())
-        status = self.cmbbox_status.get()
-        if status == "Delivered":
-            status = 0
-        elif status == "Picked up":
-            status = 1
-        elif status == "Preparing":
-            status = 2
-        details = self.entry_details.get()
-        
-        if self.order_id == 0:
-            bknd.add_order(restaurant.id, client.id, courier.id, status, details)
-            self.root.destroy()
-        else:
-            bknd.edit_order(self.order_id, restaurant.id, client.id, courier.id, status, details)
-            self.root.destroy()
+    def save(self)->None:
+            """
+            Saves the order information.
+
+            Retrieves the selected client, restaurant, courier, status, and details from the GUI.
+            If the order_id is 0, adds a new order using the backend function add_order.
+            Otherwise, edits the existing order using the backend function edit_order.
+            """
+            
+            client = bknd.client_by_name(self.cmbbox_client.get())
+            restaurant = bknd.restaurant_by_name(self.cmbbox_restaurant.get())
+            courier = bknd.courier_by_name(self.cmbbox_courier.get())
+            status = self.cmbbox_status.get()
+            if status == "Delivered":
+                status = 0
+            elif status == "Picked up":
+                status = 1
+            elif status == "Preparing":
+                status = 2
+            details = self.entry_details.get()
+            
+            if self.order_id == 0:
+                bknd.add_order(restaurant.id, client.id, courier.id, status, details)
+                self.root.destroy()
+            else:
+                bknd.edit_order(self.order_id, restaurant.id, client.id, courier.id, status, details)
+                self.root.destroy()
             
         
-    def populate(self, order_id):
+    def populate(self, order_id: int) -> None:
+        """
+        Populates the order window with data from the specified order ID.
+
+        Args:
+            order_id (int): The ID of the order if it's 0 then no data is populated.
+        """
         if order_id == 0:
             return
-        
-        
+
         order = bknd.get_order(order_id)
         restaurant_name = bknd.get_restaurant(order.restaurant_id).name
         courier_name = bknd.get_courier(order.courier_id).name

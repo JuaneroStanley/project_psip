@@ -3,7 +3,11 @@ import utils.backend as bknd
 import orm.dml as dml
 
 class new_user_window():
-    def __init__(self, db_name, db_user, db_password, db_host, db_port):
+    """
+    Window for adding new users.
+    """
+    def __init__(self, db_name:str, db_user:str, db_password:str, db_host:str, db_port:str)->None:
+        
         self.db_name = db_name
         self.db_user = db_user
         self.db_password = db_password
@@ -41,18 +45,34 @@ class new_user_window():
         self.btn_add = tk.Button(self.root, text="Dodaj", command=self.add_user)
         self.btn_add.grid(row=4, column=0, columnspan=2)
         
-    def add_user(self):
+    def add_user(self)->None:
+        """
+        Adds a new user to the system.
+
+        Attempts to log in using the entered credentials.
+        If successful, adds the user to the system using the provided username, password, and email.
+        Finally, destroys the root window.
+
+        Raises:
+            tk.messagebox.showerror: If any of the required fields are not filled or if the passwords do not match.
+        """
         if self.entry_password.get() == self.entry_confirm_password.get():
             if self.entry_username.get() != "" and self.entry_password.get() != "" and self.entry_email.get() != "":
                 if self.login_try():
                     bknd.add_user(self.entry_username.get(), self.entry_password.get(), self.entry_email.get())         
                     self.root.destroy()
             else:
-                tk.messagebox.showerror(title="Error",message="Wypełnij wszystkie pola")
+                tk.messagebox.showerror(title="Error", message="Wypełnij wszystkie pola")
         else:
-            tk.messagebox.showerror(title="Error",message="Hasła nie są takie same")
+            tk.messagebox.showerror(title="Error", message="Hasła nie są takie same")
     
-    def login_try(self):
+    def login_try(self)->bool:
+        """
+        Tries to establish a connection to the database using the provided credentials.
+
+        Returns:
+            bool: True if the connection is successful, False otherwise.
+        """
         dml.username = self.db_user
         dml.password = self.db_password
         dml.database = self.db_name
@@ -62,7 +82,7 @@ class new_user_window():
         if dml.check_connection():
             dml.create_database_if_not_exists()
         else:
-            tk.messagebox.showerror(title="Error",message="Błąd połączenia z bazą danych")
+            tk.messagebox.showerror(title="Error", message="Błąd połączenia z bazą danych")
             return False
         return True
         

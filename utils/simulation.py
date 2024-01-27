@@ -4,7 +4,10 @@ from orm.base import Base
 from faker import Faker
 
 
-def simulate():
+def simulate()->None:
+    """
+    Simulates the system by generating fake data for users, restaurants, clients, couriers, and orders.
+    """
     print("Simulating...")
     engine = dml.engine
     Base.metadata.drop_all(engine)

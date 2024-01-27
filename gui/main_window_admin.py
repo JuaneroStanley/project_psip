@@ -9,11 +9,12 @@ import gui.courier_window as cur
 import gui.order_window as ord
 
 class main_window_admin:
-         
-    print("main_window_admin")
+    """
+    Main window of the application.
+    """
     
     def __init__(self):
-        self.root = tk.Toplevel()
+        self.root = tk.Tk()
         self.root.title("My App")
         self.root.geometry("950x700")
         self.selection_mode = {"client":1,"curier":2,"restaurant":3,"order":4}
@@ -216,18 +217,34 @@ class main_window_admin:
     def show_me(self,widget):
         widget.pack()
     
-    def populate_listbox(self,listbox, list):
-        listbox.delete(0,tk.END)
+    def populate_listbox(self, listbox: tk.Listbox, list: list) -> None:
+        """
+        Populates the given listbox with items from the provided list.
+        If selection_mode is "order", the listbox will be populated with restaurant name.
+        Otherwise, the listbox will be populated with object from list attribute name.
+
+        Parameters:
+        - listbox (tk.Listbox): The listbox to populate.
+        - list (list): The list of items to populate the listbox with.
+
+        """
+        listbox.delete(0, tk.END)
         if self.selected_mode == self.selection_mode["order"]:
             for item in list:
-                listbox.insert(tk.END,f'{item.id} {bknd.get_restaurant(item.restaurant_id).name} {bknd.get_order_status(item.status)}')
+                listbox.insert(tk.END, f'{item.id} {bknd.get_restaurant(item.restaurant_id).name} {bknd.get_order_status(item.status)}')
         else:
             for item in list:
-                listbox.insert(tk.END,f'{item.name}')
+                listbox.insert(tk.END, f'{item.name}')
                     
    
     
-    def populate_list(self):
+    def populate_list(self) -> list:
+        """
+        Populates the list based on the selected mode.
+
+        Returns:
+            A list of items based on the selected mode.
+        """
         if self.selected_mode == self.selection_mode["client"]:
             return bknd.get_all_clients()
         elif self.selected_mode == self.selection_mode["curier"]:
@@ -238,94 +255,107 @@ class main_window_admin:
             return bknd.get_all_orders()
     
     def refresh_listbox(self):
+        """
+        Refreshes the list_listbox with updated data.
+        """
         self.list_listbox = self.populate_list()
         self.populate_listbox(self.listbox_main, self.list_listbox)
     
     
-    def onselect(self,evt):
-        wiget = evt.widget
-        if len(wiget.curselection()) == 0:
+    def onselect(self, evt: tk.Event) -> None:
+        """
+        Handle the selection event of a listbox item.
+        Updates the details frame with the selected item's data.
+
+        Parameters:
+        - evt (tk.Event): The event object containing information about the select event.
+        """
+        widget = evt.widget
+        if len(widget.curselection()) == 0:
             return
-        index = int(wiget.curselection()[0])
+        index = int(widget.curselection()[0])
         if self.selected_mode == self.selection_mode["client"]:
             name_value = self.list_listbox[index].name
             phone_value = self.list_listbox[index].phone
             email_value = self.list_listbox[index].email
             location = gis.get_lat_lon(self.list_listbox[index].location)
-            self.map_view.set_position(location[0],location[1])
-            address_value=gis.parse_address(gis.get_address_from_location(location[0],location[1]))
+            self.map_view.set_position(location[0], location[1])
+            address_value = gis.parse_address(gis.get_address_from_location(location[0], location[1]))
             self.lbl_client_name_value.config(text=name_value)
             self.lbl_client_phone_value.config(text=phone_value)
             self.lbl_client_email_value.config(text=email_value)
             self.lbl_client_address_value.config(text=address_value)
             orders = bknd.get_all_orders_by_client(self.list_listbox[index].id)
-            self.listbox_client_orders.delete(0,tk.END)
+            self.listbox_client_orders.delete(0, tk.END)
             for order in orders:
-                self.listbox_client_orders.insert(tk.END,str(order.id) + " " + bknd.get_order_status(order.status))
+                self.listbox_client_orders.insert(tk.END, str(order.id) + " " + bknd.get_order_status(order.status))
         elif self.selected_mode == self.selection_mode["curier"]:
             name_value = self.list_listbox[index].name
             phone_value = self.list_listbox[index].phone
             location = gis.get_lat_lon(self.list_listbox[index].location)
-            self.map_view.set_position(location[0],location[1])
-            address_value=gis.parse_address(gis.get_address_from_location(location[0],location[1]))
+            self.map_view.set_position(location[0], location[1])
+            address_value = gis.parse_address(gis.get_address_from_location(location[0], location[1]))
             status_value = bknd.get_courier_status(self.list_listbox[index].status)
             self.lbl_curier_name_value.config(text=name_value)
             self.lbl_curier_phone_value.config(text=phone_value)
             self.lbl_curier_location_value.config(text=address_value)
             self.lbl_curier_status_value.config(text=status_value)
             orders = bknd.get_all_orders_by_courier(self.list_listbox[index].id)
-            self.listbox_curier_orders.delete(0,tk.END)
+            self.listbox_curier_orders.delete(0, tk.END)
             for order in orders:
-                self.listbox_curier_orders.insert(tk.END,str(order.id) + " " + bknd.get_order_status(order.status))
+                self.listbox_curier_orders.insert(tk.END, str(order.id) + " " + bknd.get_order_status(order.status))
         elif self.selected_mode == self.selection_mode["restaurant"]:
             name_value = self.list_listbox[index].name
             phone_value = self.list_listbox[index].phone
             description_value = self.list_listbox[index].description
             rating_value = self.list_listbox[index].rating
             location = gis.get_lat_lon(self.list_listbox[index].location)
-            self.map_view.set_position(location[0],location[1])
-            address_value=gis.parse_address(gis.get_address_from_location(location[0],location[1]))
-            self.lbl_restaurant_name_value.config(text=name_value)            
+            self.map_view.set_position(location[0], location[1])
+            address_value = gis.parse_address(gis.get_address_from_location(location[0], location[1]))
+            self.lbl_restaurant_name_value.config(text=name_value)
             self.lbl_restaurant_phone_value.config(text=phone_value)
             self.lbl_restaurant_description_value.config(text=description_value)
             self.lbl_restaurant_rating_value.config(text=rating_value)
             self.lbl_restaurant_address_value.config(text=address_value)
             orders = bknd.get_all_orders_by_restaurant(self.list_listbox[index].id)
-            self.listbox_restaurant_orders.delete(0,tk.END)
+            self.listbox_restaurant_orders.delete(0, tk.END)
             for order in orders:
-                self.listbox_restaurant_orders.insert(tk.END,str(order.id) + " " + bknd.get_order_status(order.status))
+                self.listbox_restaurant_orders.insert(tk.END, str(order.id) + " " + bknd.get_order_status(order.status))
         elif self.selected_mode == self.selection_mode["order"]:
             restaurant_value = bknd.get_restaurant(self.list_listbox[index].restaurant_id).name
             client_value = bknd.get_client(self.list_listbox[index].client_id).name
-            curier_value = bknd.get_courier(self.list_listbox[index].courier_id).name
+            courier_value = bknd.get_courier(self.list_listbox[index].courier_id).name
             status_value = bknd.get_order_status(self.list_listbox[index].status)
             details_value = self.list_listbox[index].description
             self.lbl_order_restaurant_value.config(text=restaurant_value)
             self.lbl_order_client_value.config(text=client_value)
-            self.lbl_order_curier_value.config(text=curier_value)
+            self.lbl_order_curier_value.config(text=courier_value)
             self.lbl_order_status_value.config(text=status_value)
             self.lbl_order_details_value.config(text=details_value)
               
     
-    def set_up_map(self,map_view):
+    def set_up_map(self, map_view: tkintermapview.TkinterMapView) -> None:
+        """
+        Sets up the map view based on the selected mode - self.selection_mode .
+        """
         map_view.delete_all_marker()
         if self.selected_mode == self.selection_mode["client"]:
             for client in bknd.get_all_clients():
-                lat,lon = gis.get_lat_lon(client.location)
-                map_view.set_marker(lat,lon,text = client.name)
-                map_view.set_position(lat,lon)
+                lat, lon = gis.get_lat_lon(client.location)
+                map_view.set_marker(lat, lon, text=client.name)
+                map_view.set_position(lat, lon)
                 map_view.set_zoom(5)
         elif self.selected_mode == self.selection_mode["curier"]:
             for curier in bknd.get_all_couriers():
-                lat,lon = gis.get_lat_lon(curier.location)
-                map_view.set_marker(lat,lon,text = curier.name)
-                map_view.set_position(lat,lon)
+                lat, lon = gis.get_lat_lon(curier.location)
+                map_view.set_marker(lat, lon, text=curier.name)
+                map_view.set_position(lat, lon)
                 map_view.set_zoom(5)
         elif self.selected_mode == self.selection_mode["restaurant"]:
             for restaurant in bknd.get_all_restaurants():
-                lat,lon = gis.get_lat_lon(restaurant.location)
-                map_view.set_marker(lat,lon,text = restaurant.name)
-                map_view.set_position(lat,lon)
+                lat, lon = gis.get_lat_lon(restaurant.location)
+                map_view.set_marker(lat, lon, text=restaurant.name)
+                map_view.set_position(lat, lon)
                 map_view.set_zoom(5)
                 
     
@@ -333,7 +363,11 @@ class main_window_admin:
     
     
     # Buttons Frame
-    def details_client(self):
+    def details_client(self) -> None:
+        """
+        Displays the details of a client.
+        This method sets the selected mode to client, refreshes the listbox, sets up the map view,
+        shows the client detail, frame hides other frames"""
         self.selected_mode = 1
         self.refresh_listbox()
         self.set_up_map(self.map_view)
@@ -343,7 +377,12 @@ class main_window_admin:
         self.hide_me(self.detail_order_frame)
         self.show_me(self.detail_client_frame)
         
-    def details_curier(self):
+    def details_curier(self)-> None:
+        """
+        Displays the details of couriers.
+        It sets the selected mode to courier, refreshes the listbox, sets up the map view,
+        updates the label text, hides other frames, and shows the courier frame.
+        """
         self.selected_mode = 2
         self.refresh_listbox()
         self.set_up_map(self.map_view)
@@ -353,7 +392,12 @@ class main_window_admin:
         self.hide_me(self.detail_order_frame)
         self.show_me(self.detail_curier_frame)
         
-    def details_restaurant(self):
+    def details_restaurant(self)-> None:
+        """
+        Displays details of a restaurant.
+        It sets the selected mode to restaurant, refreshes the listbox, sets up the map view,
+        updates the label text, hides other frames, and shows the restaurant frame.
+        """
         self.selected_mode = 3
         self.refresh_listbox()
         self.set_up_map(self.map_view)
@@ -363,7 +407,12 @@ class main_window_admin:
         self.hide_me(self.detail_order_frame)
         self.show_me(self.detail_restaurant_frame)
         
-    def details_order(self):
+    def details_order(self)-> None:
+        """
+        Displays the details of an order.
+        It sets the selected mode to order, refreshes the listbox, sets up the map view,
+        updates the label text, hides other frames, and shows the orders frame.
+        """
         self.selected_mode = 4
         self.refresh_listbox()
         self.set_up_map(self.map_view)
@@ -372,23 +421,19 @@ class main_window_admin:
         self.hide_me(self.detail_curier_frame)
         self.hide_me(self.detail_restaurant_frame)
         self.show_me(self.detail_order_frame)
-    
-    
-    def initialize_details(self):
-        self.details_client()
-        # self.detail_client_frame.pack_forget()
-        # self.detail_curier_frame.pack_forget()
-        # self.detail_restaurant_frame.pack_forget()
 
     def open_window(self):
-        self.initialize_details()
+        self.details_client()
         self.root.mainloop()
         
     def close_window(self):
         self.root.destroy()
     
 
-    def edit_btn(self):
+    def edit_btn(self)-> None:
+        """
+        Edit button handler that calls the appropriate edit method based on the selected mode.
+        """
         if self.selected_mode == self.selection_mode["client"]:
             self.edit_client()
         elif self.selected_mode == self.selection_mode["curier"]:
@@ -398,7 +443,10 @@ class main_window_admin:
         elif self.selected_mode == self.selection_mode["order"]:
             self.edit_order()
     
-    def delete_btn(self):
+    def delete_btn(self)-> None:
+        """
+        Delete button handler that calls the appropriate delete method based on the selected mode.
+        """
         if self.selected_mode == self.selection_mode["client"]:
             bknd.delete_client(self.list_listbox[self.listbox_main.curselection()[0]].id)
             self.details_client()
@@ -411,7 +459,10 @@ class main_window_admin:
         elif self.selected_mode == self.selection_mode["order"]:
             bknd.delete_order(self.list_listbox[self.listbox_main.curselection()[0]].id)
     
-    def add_btn(self):
+    def add_btn(self)-> None:
+        """
+        Add button handler that calls the appropriate add method based on the selected mode.
+        """
         if self.selected_mode == self.selection_mode["client"]:
             self.add_client()
         elif self.selected_mode == self.selection_mode["curier"]:
@@ -421,38 +472,62 @@ class main_window_admin:
         elif self.selected_mode == self.selection_mode["order"]:
             self.add_order()
             
-    def edit_restaurant(self):
+    def edit_restaurant(self) -> None:
+        """
+        Opens a restaurant window with the id of the selected restaurant.
+        """
         id = self.list_listbox[self.listbox_main.curselection()[0]].id
         restaurant_window = rest.restaurant_window(id)
         restaurant_window.open_window()
         
-    def add_restaurant(self):
+    def add_restaurant(self) -> None:
+        """
+        Opens a restaurant window. Passes 0 as the id parameter.
+        """
         restaurant_window = rest.restaurant_window(0)
         restaurant_window.open_window()
 
-    def edit_client(self):
+    def edit_client(self) -> None:
+        """
+        Opens a client window with the id of the selected client.
+        """
         id = self.list_listbox[self.listbox_main.curselection()[0]].id
         client_window = clnt.client_window(id)
         client_window.open_window()
     
-    def add_client(self):
+    def add_client(self) -> None:
+        """
+        Opens a client window. Passes 0 as the id parameter.
+        """
         client_window = clnt.client_window(0)
         client_window.open_window()
         
-    def edit_courier(self):
+    def edit_courier(self) -> None:
+        """
+        Opens a courier window with the id of the selected courier.
+        """
         id = self.list_listbox[self.listbox_main.curselection()[0]].id
         curier_window = cur.courier_window(id)
         curier_window.open_window()
 
-    def add_courier(self):
+    def add_courier(self) -> None:
+        """
+        Opens the courier window. Passes 0 as the id parameter.
+        """
         curier_window = cur.courier_window(0)
         curier_window.open_window()
     
-    def edit_order(self):
+    def edit_order(self) -> None:
+        """
+        Opens the order window with the id of the selected order.
+        """
         id = self.list_listbox[self.listbox_main.curselection()[0]].id
         order_window = ord.order_window(id)
         order_window.open_window()
 
-    def add_order(self):
+    def add_order(self) -> None:
+        """
+        Opens a new order window. Passes 0 as the id parameter.
+        """
         order_window = ord.order_window(0)
         order_window.open_window()

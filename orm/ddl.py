@@ -8,8 +8,8 @@ class User(Base):
     id = mapped_column(Integer, primary_key=True, autoincrement=True)
     nickname = mapped_column(String(64), nullable=False)
     email = mapped_column(String(64), nullable=False)
-    password = mapped_column(String(64), nullable=False)    
-    
+    password = mapped_column(String(64), nullable=False)
+        
     def __repr__(self):
         return '<User %r>' % self.nickname
 
