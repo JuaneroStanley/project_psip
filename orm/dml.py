@@ -8,13 +8,7 @@ import dotenv
 import os
 
 env = dotenv.load_dotenv('./.env')
-# db_params = sqlalchemy.engine.URL.create(
-#     drivername='postgresql',
-#     username=os.getenv("POSTGRES_USER"),
-#     password=os.getenv("POSTGRES_PASSWORD"),
-#     database=os.getenv("POSTGRES_DB"),
-#     host=os.getenv("POSTGRES_HOST"),
-#     port=os.getenv("POSTGRES_PORT"))
+
 
 engine = None
 
