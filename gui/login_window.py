@@ -32,7 +32,7 @@ class login_window():
     lbl_db_params = tk.Label(root, text="Parametry bazy danych:")
     lbl_db_params.grid(row= 0 , column=2,columnspan=2)
     
-    lbl_db_name = tk.Label(root, text="Nazwa bazy danych:")
+    lbl_db_name = tk.Label(root, text="Nazwa bazy danych:",justify=tk.RIGHT,width=30)
     lbl_db_name.grid(row=1, column=2)
     
     entry_db_name = tk.Entry(root)
