@@ -160,7 +160,11 @@ class main_window_admin:
         self.lbl_restaurant_address_value.grid(row=5,column=1)
         
         self.listbox_restaurant_orders = tk.Listbox(self.detail_restaurant_frame, width=50)
-        self.listbox_restaurant_orders.grid(row=0,column=2,rowspan=5)
+        self.listbox_restaurant_orders.grid(row=0,column=2,rowspan=4)
+        
+        self.btn_restaurant_couriers = tk.Button(self.detail_restaurant_frame, text="Clients", command=self.restaurant_couriers_btn,width=15)
+        self.btn_restaurant_couriers.grid(row=6,column=2)
+        
         
         # Detail Order Frame
         
@@ -359,7 +363,16 @@ class main_window_admin:
                 map_view.set_zoom(5)
                 
     
-    
+    def restaurant_couriers_btn(self) -> None:
+        """
+        Populates the listbox with couriers of the selected restaurant.
+        """
+        self.selected_mode = 2
+        self.hide_me(self.detail_restaurant_frame)
+        self.show_me(self.detail_curier_frame)
+        self.list_listbox = bknd.get_couriers_by_restaurant(self.list_listbox[self.listbox_main.curselection()[0]].id)
+        print(self.list_listbox)
+        self.populate_listbox(self.listbox_main, self.list_listbox)
     
     
     # Buttons Frame

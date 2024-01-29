@@ -335,3 +335,14 @@ def courier_by_name(name:str)->Courier:
         courier = session.query(Courier).filter(Courier.name == name).first()
         return courier
     
+def get_couriers_by_restaurant(restaurant_id:int)->list[Courier]:
+    """
+    Retrieve all couriers associated with a given restaurant.
+    """
+    with create_session() as session:
+        orders = session.query(Order).filter(Order.restaurant_id == restaurant_id).all()
+        couriers = []
+        for order in orders:
+            courier = session.query(Courier).filter(Courier.id == order.courier_id).first()
+            couriers.append(courier)
+        return couriers
